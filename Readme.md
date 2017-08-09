@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Анастасия Васина](https://up.htmlacademy.ru/javascript/10/user/153140).
-* Наставник: `Екатерина Кащенко`.
+* Наставник: [Екатерина Кащенко](https://up.htmlacademy.ru/javascript/10/user/109008).
 
 ---
 

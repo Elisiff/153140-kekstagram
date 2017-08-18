@@ -30,3 +30,41 @@ for (var i = 0; i < 25; i++) {
 }
 
 alert(data[2].url);
+
+// Галлерея на сайте
+var pictureTemplate = document.querySelector('#picture-template');
+var picturesContainer = document.querySelector('.pictures');
+var uploadOverlay = document.querySelector('.upload-overlay');
+uploadOverlay.classList.add('hidden');
+var gallery = document.querySelector('.gallery-overlay');
+gallery.classList.remove('hidden');
+
+function getPicture(data) {
+  var picture = pictureTemplate.cloneNode(true);
+
+  picture.querySelector('img').src = data.url;
+  picture.querySelector('.picture-likes').textContent = data.likes;
+  picture.querySelector('.picture-comments').textContent = data.comments;
+
+  return picture;
+}
+
+var fragment = document.createDocumentFragment();
+for (var i = 0; i < data.length; i++) {
+  fragment.appendChild(getPicture(data[i]));
+}
+picturesContainer.appendChild(fragment);
+
+function getPictureInGallery(data) {
+  var galleryPreview = gallery.querySelector('.gallery-overlay-preview');
+
+  galleryPreview.querySelector('.gallery-overlay-image').src = data.url;
+  galleryPreview.querySelector('.likes-count').textContent = data.likes;
+  galleryPreview.querySelector('.comments-count').textContent = data.comments;
+
+  return galleryPreview;
+}
+
+for (var i = 0; i < data.length; i++) {
+  gallery.appendChild(getPictureInGallery(data[i]));
+}

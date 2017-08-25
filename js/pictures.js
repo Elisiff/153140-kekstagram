@@ -118,44 +118,44 @@
   }
 
   function onPictureClick() {
-    picturesContainer.addEventListener('click', function (evt) {
-      evt.preventDefault();
-      var target = evt.target;
+    picturesContainer.addEventListener('click', function (evt) { // добавляю событие клика на контейнер с рисунками
+      evt.preventDefault(); // удаляю обычное поведение ссылки
+      var target = evt.target; // вывожу переменную таргейт - элемент, на который кликнули
 
       while (target !== picturesContainer) {
-        if (target.tagName === 'a') {
-          getPictureInGallery();
+        if (target.tagName === 'a') { // если таргейт - это ссылка
+          getPictureInGallery(); // запускаю функцию генерации картинки (но она не работает почему-то выше)
           // var likes = target.querySelector('.picture-likes').textContent;
           // var url = target.querySelector('img').getAttribute('src');
           // generatePhotoArray(url, likes);
           // openGalleryOverlay();
           // openPopup();
         }
-        target = target.parentNode;
+        target = target.parentNode; // таргейт - это родитель нынешнего таргейта
       }
 
       // getPictureInGallery(photosArray[i]);
-      openGalleryOverlay();
+      openGalleryOverlay(); // убираю с оверлея класс hidden
     });
   }
-  onPictureClick();
+  onPictureClick(); // вызываю функцию клика
 
   function onPictureEnterPress() {
-    for (var i = 0; i < picture.length; i++) {
-      picture[i].addEventListener('keydown', function (evt) {
-        var target = evt.target;
-        if (picture[i] === target) {
+    for (var i = 0; i < picture.length; i++) { // перебираю массив картинок
+      picture[i].addEventListener('keydown', function (evt) { // при нажатии на картинку
+        var target = evt.target; // определяем таргейт
+        if (picture[i] === target) {  // если картинка равна таргейту
           // return i;
-          getPictureInGallery(photosArray[i]);
+          getPictureInGallery(photosArray[i]); // записываем данные для большой картинки по индексу нажатой картинки
         } else
-        if (evt.keyCode === ENTER_KEYCODE) {
-          openGalleryOverlay();
+        if (evt.keyCode === ENTER_KEYCODE) { // если нажат Enter
+          openGalleryOverlay(); // бираю с оверлея класс hidden
         }
-        return picture[i];
+        return picture[i]; // возвращаю картинку, на которой произошло нажатие клавиши
       });
     }
   }
-  onPictureEnterPress();
+  onPictureEnterPress(); // вызываю функцию нажатия enter
 
   galleryOverlayClose.addEventListener('click', function () {
     closeGalleryOverlay();

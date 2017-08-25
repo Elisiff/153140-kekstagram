@@ -22,7 +22,7 @@
 
   function getPhotoUrl() {
     var url = [];
-    for (var i = 1; i <= 25; i++) {
+    for (var i = 1; i <= 26; i++) {
       url.push('photos/' + i + '.jpg');
     }
     return url;
@@ -122,13 +122,19 @@
       evt.preventDefault();
       var target = evt.target;
 
-      for (var i in picturesContainer.children) {
-        if (picturesContainer.children[i] === target) {
-          return i;
+      while (target !== picturesContainer) {
+        if (target.tagName === 'a') {
+          getPictureInGallery();
+          // var likes = target.querySelector('.picture-likes').textContent;
+          // var url = target.querySelector('img').getAttribute('src');
+          // generatePhotoArray(url, likes);
+          // openGalleryOverlay();
+          // openPopup();
         }
+        target = target.parentNode;
       }
 
-      getPictureInGallery(photosArray[i]);
+      // getPictureInGallery(photosArray[i]);
       openGalleryOverlay();
     });
   }
@@ -137,10 +143,15 @@
   function onPictureEnterPress() {
     for (var i = 0; i < picture.length; i++) {
       picture[i].addEventListener('keydown', function (evt) {
-
+        var target = evt.target;
+        if (picture[i] === target) {
+          // return i;
+          getPictureInGallery(photosArray[i]);
+        } else
         if (evt.keyCode === ENTER_KEYCODE) {
           openGalleryOverlay();
         }
+        return picture[i];
       });
     }
   }

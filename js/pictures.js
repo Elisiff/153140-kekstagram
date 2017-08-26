@@ -49,7 +49,6 @@
   uploadOverlay.classList.add('hidden');
 
   var gallery = document.querySelector('.gallery-overlay');
-  gallery.classList.add('hidden');
 
   function setPicture(photos) {
     var pictureTemplate = document.querySelector('#picture-template').content;
@@ -86,20 +85,12 @@
     return galleryPreview;
   }
 
-  function fillGalleryPhotos(photos) {
-    for (var i = 0; i < photos.length; i++) {
-      gallery.appendChild(getPictureInGallery(photos[i]));
-    }
-  }
-  fillGalleryPhotos(photosArray);
-
   // События
   var ESC_KEYCODE = 27;
   var ENTER_KEYCODE = 13;
 
   var picture = document.querySelectorAll('.picture');
-  var galleryOverlay = document.querySelector('.gallery-overlay');
-  var galleryOverlayClose = galleryOverlay.querySelector('.gallery-overlay-close');
+  var galleryClose = gallery.querySelector('.gallery-overlay-close');
 
   function pressEsc(evt) {
     if (evt.keyCode === ESC_KEYCODE) {
@@ -108,60 +99,55 @@
   }
 
   function openGalleryOverlay() {
-    galleryOverlay.classList.remove('hidden');
+    gallery.classList.remove('hidden');
     document.addEventListener('keydown', pressEsc);
   }
 
   function closeGalleryOverlay() {
-    galleryOverlay.classList.add('hidden');
+    gallery.classList.add('hidden');
     document.removeEventListener('keydown', pressEsc);
   }
 
   function onPictureClick() {
-    picturesContainer.addEventListener('click', function (evt) { // добавляю событие клика на контейнер с рисунками
-      evt.preventDefault(); // удаляю обычное поведение ссылки
-      var target = evt.target; // вывожу переменную таргейт - элемент, на который кликнули
+    picturesContainer.addEventListener('click', function (evt) {
+      evt.preventDefault();
+      var target = evt.target;
 
-      while (target !== picturesContainer) {
-        if (target.tagName === 'a') { // если таргейт - это ссылка
-          getPictureInGallery(); // запускаю функцию генерации картинки (но она не работает почему-то выше)
-          // var likes = target.querySelector('.picture-likes').textContent;
-          // var url = target.querySelector('img').getAttribute('src');
-          // generatePhotoArray(url, likes);
-          // openGalleryOverlay();
-          // openPopup();
+      for (var i = 0; i < picturesContainer.children.length; i++) {
+        if (picturesContainer.children[i].querySelector('img') === target) {
+          gallery.appendChild(getPictureInGallery(photosArray[i]));
         }
-        target = target.parentNode; // таргейт - это родитель нынешнего таргейта
       }
 
-      // getPictureInGallery(photosArray[i]);
-      openGalleryOverlay(); // убираю с оверлея класс hidden
+      openGalleryOverlay();
     });
   }
-  onPictureClick(); // вызываю функцию клика
+  onPictureClick();
 
   function onPictureEnterPress() {
-    for (var i = 0; i < picture.length; i++) { // перебираю массив картинок
-      picture[i].addEventListener('keydown', function (evt) { // при нажатии на картинку
-        var target = evt.target; // определяем таргейт
-        if (picture[i] === target) {  // если картинка равна таргейту
-          // return i;
-          getPictureInGallery(photosArray[i]); // записываем данные для большой картинки по индексу нажатой картинки
-        } else
-        if (evt.keyCode === ENTER_KEYCODE) { // если нажат Enter
-          openGalleryOverlay(); // бираю с оверлея класс hidden
+    for (var i = 0; i < picture.length; i++) {
+      picture[i].addEventListener('keydown', function (evt) {
+        var target = evt.target;
+
+        if (evt.keyCode === ENTER_KEYCODE) {
+          for (var k = 0; k < picture.length; k++) {
+            if (picture[k] === target) {
+              gallery.appendChild(getPictureInGallery(photosArray[k]));
+            }
+          }
+
+          openGalleryOverlay();
         }
-        return picture[i]; // возвращаю картинку, на которой произошло нажатие клавиши
       });
     }
   }
-  onPictureEnterPress(); // вызываю функцию нажатия enter
+  onPictureEnterPress();
 
-  galleryOverlayClose.addEventListener('click', function () {
+  galleryClose.addEventListener('click', function () {
     closeGalleryOverlay();
   });
 
-  galleryOverlayClose.addEventListener('keydown', function (evt) {
+  galleryClose.addEventListener('keydown', function (evt) {
     if (evt.keyCode === ENTER_KEYCODE) {
       closeGalleryOverlay();
     }

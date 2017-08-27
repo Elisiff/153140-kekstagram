@@ -152,4 +152,114 @@
       closeGalleryOverlay();
     }
   });
+
+  // Форма
+  var form = document.querySelector('.upload-form');
+  var uploadFile = form.querySelector('.upload-input');
+  var uploadOverlay = form.querySelector('.upload-overlay');
+  var cancelBtn = form.querySelector('.upload-form-cancel');
+  var descriptionForm = form.querySelector('.upload-form-description');
+  var submitBtn = form.querySelector('.upload-form-submit');
+  var formResizeControls = form.querySelector('.upload-resize-controls-value');
+  var formResizeMinus = form.querySelector('.upload-resize-controls-button-dec');
+  var formResizePlus = form.querySelector('.upload-resize-controls-button-inc');
+  var scaleImage = form.querySelector('.effect-image-preview');
+
+  function pressEscForm(evt) {
+    if (evt.keyCode === ESC_KEYCODE) {
+      closeForm();
+    }
+  }
+
+  function openForm() {
+    uploadOverlay.classList.remove('hidden');
+    document.addEventListener('keydown', pressEscForm);
+  }
+
+  function closeForm() {
+    uploadOverlay.classList.add('hidden');
+    document.removeEventListener('keydown', pressEscForm);
+  }
+
+  uploadFile.addEventListener('change', function (evt) {
+    if (evt.target.value !== '') {
+      openForm();
+    }
+  });
+
+  cancelBtn.addEventListener('click', function (evt) {
+    closeForm();
+  });
+
+  // !!Если фокус находится на форме ввода комментария, то форма закрываться не должна
+  descriptionForm.addEventListener('focus', function (evt) {
+    if (evt.keyCode === ESC_KEYCODE) {
+      closeForm(); // что тут написать?
+    }
+  });
+
+  cancelBtn.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      closeForm();
+    }
+  });
+
+  // !!Все равно отправляет форму, даже если есть ошибки, как исправить?
+  submitBtn.addEventListener('click', function (evt) {
+    form.submit();
+  });
+
+  descriptionForm.addEventListener('input', function (evt) {
+    var target = evt.target;
+    if (target.value.length < 30) {
+      target.setCustomValidity('Комментарий должен состоять минимум из 30 символов');
+    } else
+    if (target.value.length > 100) {
+      target.setCustomValidity('Комментарий должен состоять максимум из 100 символов');
+    } else {
+      target.setCustomValidity('');
+    }
+  });
+
+  // !!Все равно отправляет форму, даже если есть ошибки, как исправить?
+  submitBtn.addEventListener('keydown', function (evt) {
+    if ((evt.keyCode === ENTER_KEYCODE) && (descriptionForm.validity.valid)) {
+      form.submit();
+    }
+  });
+
+  function getMinMax(scale) {
+    if (scale >= 100) {
+      formResizeControls.value = '100%';
+      scaleImage.setAttribute('style', 'transform: scale(1)');
+    } else
+    if (scale <= 25) {
+      formResizeControls.value = '25%';
+      scaleImage.setAttribute('style', 'transform: scale(0.25)');
+    }
+  }
+
+  formResizeControls.value = '100%';
+
+  formResizeMinus.addEventListener('click', function (evt) {
+    var formResizeCtrls = Number(formResizeControls.value.replace(/%/g,''));
+    formResizeCtrls -= 25;
+    formResizeControls.value = formResizeCtrls + '%';
+    var transform = 'scale(0.' + (formResizeControls.value.replace(/%/g,'')) + ')';
+    scaleImage.setAttribute('style', ('transform: ' + transform));
+
+    getMinMax (formResizeCtrls);
+  });
+
+  formResizePlus.addEventListener('click', function (evt) {
+    var formResizeCtrls = Number(formResizeControls.value.replace(/%/g,''));
+    formResizeCtrls += 25;
+    formResizeControls.value = formResizeCtrls + '%';
+    var transform = 'scale(0.' + (formResizeControls.value.replace(/%/g,'')) + ')';
+    scaleImage.setAttribute('style', ('transform: ' + transform));
+
+    getMinMax (formResizeCtrls);
+  });
+
+
 })();

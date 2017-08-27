@@ -22,13 +22,13 @@
 
   function getPhotoUrl() {
     var url = [];
-    for (var i = 1; i <= 25; i++) {
+    for (var i = 1; i <= 26; i++) {
       url.push('photos/' + i + '.jpg');
     }
     return url;
   }
 
-  var data = getPhotoUrl();
+  var data = getPhotoUrl(data);
 
   function generatePhotoArray() {
     var photo;
@@ -49,7 +49,6 @@
   uploadOverlay.classList.add('hidden');
 
   var gallery = document.querySelector('.gallery-overlay');
-  gallery.classList.remove('hidden');
 
   function setPicture(photos) {
     var pictureTemplate = document.querySelector('#picture-template').content;
@@ -86,6 +85,71 @@
     return galleryPreview;
   }
 
-  gallery.appendChild(getPictureInGallery(photosArray[13]));
+  // События
+  var ESC_KEYCODE = 27;
+  var ENTER_KEYCODE = 13;
 
+  var picture = document.querySelectorAll('.picture');
+  var galleryClose = gallery.querySelector('.gallery-overlay-close');
+
+  function pressEsc(evt) {
+    if (evt.keyCode === ESC_KEYCODE) {
+      closeGalleryOverlay();
+    }
+  }
+
+  function openGalleryOverlay() {
+    gallery.classList.remove('hidden');
+    document.addEventListener('keydown', pressEsc);
+  }
+
+  function closeGalleryOverlay() {
+    gallery.classList.add('hidden');
+    document.removeEventListener('keydown', pressEsc);
+  }
+
+  function onPictureClick() {
+    picturesContainer.addEventListener('click', function (evt) {
+      evt.preventDefault();
+      var target = evt.target;
+
+      for (var i = 0; i < picturesContainer.children.length; i++) {
+        if (picturesContainer.children[i].querySelector('img') === target) {
+          gallery.appendChild(getPictureInGallery(photosArray[i]));
+        }
+      }
+
+      openGalleryOverlay();
+    });
+  }
+  onPictureClick();
+
+  function onPictureEnterPress() {
+    for (var i = 0; i < picture.length; i++) {
+      picture[i].addEventListener('keydown', function (evt) {
+        var target = evt.target;
+
+        if (evt.keyCode === ENTER_KEYCODE) {
+          for (var k = 0; k < picture.length; k++) {
+            if (picture[k] === target) {
+              gallery.appendChild(getPictureInGallery(photosArray[k]));
+            }
+          }
+
+          openGalleryOverlay();
+        }
+      });
+    }
+  }
+  onPictureEnterPress();
+
+  galleryClose.addEventListener('click', function () {
+    closeGalleryOverlay();
+  });
+
+  galleryClose.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      closeGalleryOverlay();
+    }
+  });
 })();

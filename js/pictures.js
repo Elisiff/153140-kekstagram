@@ -185,6 +185,15 @@
 
   uploadFile.addEventListener('change', function (evt) {
     if (evt.target.value !== '') {
+      var classes = scaleImage.className.split(' ');
+      if (classes.length === 2) {
+        scaleImage.classList.remove(classes[1]);
+        classes.splice(1, 1);
+      }
+      descriptionForm.setAttribute('style', 'box-shadow: none');
+      scaleImage.style = 'transform: scale(1)';
+      formResizeControls.setAttribute('value', '100%');
+      form.reset();
       openForm();
     }
   });
@@ -193,10 +202,9 @@
     closeForm();
   });
 
-  // !!Если фокус находится на форме ввода комментария, то форма закрываться не должна
-  descriptionForm.addEventListener('focus', function (evt) {
+  descriptionForm.addEventListener('keydown', function (evt) {
     if (evt.keyCode === ESC_KEYCODE) {
-      closeForm(); // что тут написать?
+      evt.stopPropagation();
     }
   });
 
@@ -244,22 +252,6 @@
     // });
     // }
   // }
-
-  submitBtn.addEventListener('click', function (evt) {
-    if (validateDescription()) {
-      return true;
-    } else {
-      return false;
-    }
-  });
-
-  submitBtn.addEventListener('keydown', function (evt) {
-    if ((evt.keyCode === ENTER_KEYCODE) && (validateDescription())) {
-      return true;
-    } else {
-      return false;
-    }
-  });
 
   function getMinMax(scale) {
     if (scale >= 100) {
@@ -311,4 +303,40 @@
     });
   }
   onEffectControlsClick();
+
+  submitBtn.addEventListener('click', function (evt) {
+    if (validateDescription()) {
+      evt.preventDefault();
+      var classes = scaleImage.className.split(' ');
+      if (classes.length === 2) {
+        scaleImage.classList.remove(classes[1]);
+        classes.splice(1, 1);
+      }
+      descriptionForm.setAttribute('style', 'box-shadow: none');
+      scaleImage.style = 'transform: scale(1)';
+      formResizeControls.setAttribute('value', '100%');
+      form.reset();
+      return true;
+    } else {
+      return false;
+    }
+  });
+
+  submitBtn.addEventListener('keydown', function (evt) {
+    if ((evt.keyCode === ENTER_KEYCODE) && (validateDescription())) {
+      evt.preventDefault();
+      var classes = scaleImage.className.split(' ');
+      if (classes.length === 2) {
+        scaleImage.classList.remove(classes[1]);
+        classes.splice(1, 1);
+      }
+      descriptionForm.setAttribute('style', 'box-shadow: none');
+      scaleImage.style = 'transform: scale(1)';
+      formResizeControls.setAttribute('value', '100%');
+      form.reset();
+      return true;
+    } else {
+      return false;
+    }
+  });
 })();

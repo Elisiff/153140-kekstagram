@@ -143,35 +143,32 @@
   }
   onPictureEnterPress();
 
-  galleryClose.addEventListener('click', function () {
-    closeGalleryOverlay();
-  });
-
-  galleryClose.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === ENTER_KEYCODE) {
+  function onGalleryCloseClick() {
+    galleryClose.addEventListener('click', function () {
       closeGalleryOverlay();
-    }
-  });
+    });
+  }
+  onGalleryCloseClick();
+
+  function onGalleryCloseKeydown() {
+    galleryClose.addEventListener('keydown', function (evt) {
+      if (evt.keyCode === ENTER_KEYCODE) {
+        closeGalleryOverlay();
+      }
+    });
+  }
+  onGalleryCloseKeydown();
 
   // Форма
   var form = document.querySelector('.upload-form');
-  var uploadFile = form.querySelector('.upload-input');
-  var formUploadOverlay = form.querySelector('.upload-overlay');
-  var cancelBtn = form.querySelector('.upload-form-cancel');
-  var descriptionForm = form.querySelector('.upload-form-description');
-  var submitBtn = form.querySelector('.upload-form-submit');
-  var formResizeControls = form.querySelector('.upload-resize-controls-value');
-  var formResizeMinus = form.querySelector('.upload-resize-controls-button-dec');
-  var formResizePlus = form.querySelector('.upload-resize-controls-button-inc');
-  var scaleImage = form.querySelector('.effect-image-preview');
-  // var hashtags = form.querySelector('.upload-form-hashtags');
-  var effectControls = form.querySelector('.upload-effect-controls');
 
   function pressEscForm(evt) {
     if (evt.keyCode === ESC_KEYCODE) {
       closeForm();
     }
   }
+
+  var formUploadOverlay = form.querySelector('.upload-overlay');
 
   function openForm() {
     formUploadOverlay.classList.remove('hidden');
@@ -183,36 +180,59 @@
     document.removeEventListener('keydown', pressEscForm);
   }
 
-  uploadFile.addEventListener('change', function (evt) {
-    if (evt.target.value !== '') {
-      var classes = scaleImage.className.split(' ');
-      if (classes.length === 2) {
-        scaleImage.classList.remove(classes[1]);
-        classes.splice(1, 1);
+  var scaleImage = form.querySelector('.effect-image-preview');
+  var descriptionForm = form.querySelector('.upload-form-description');
+  var formResizeControls = form.querySelector('.upload-resize-controls-value');
+
+  function resetForm() {
+    var classes = scaleImage.className.split(' ');
+    if (classes.length === 2) {
+      scaleImage.classList.remove(classes[1]);
+      classes.splice(1, 1);
+    }
+    descriptionForm.setAttribute('style', 'box-shadow: none');
+    scaleImage.style = 'transform: scale(1)';
+    formResizeControls.setAttribute('value', '100%');
+    form.reset();
+  }
+
+  function onUploadFileClick() {
+    var uploadFile = form.querySelector('.upload-input');
+    uploadFile.addEventListener('change', function (evt) {
+      if (evt.target.value !== '') {
+        resetForm();
+        openForm();
       }
-      descriptionForm.setAttribute('style', 'box-shadow: none');
-      scaleImage.style = 'transform: scale(1)';
-      formResizeControls.setAttribute('value', '100%');
-      form.reset();
-      openForm();
-    }
-  });
+    });
+  }
+  onUploadFileClick();
 
-  cancelBtn.addEventListener('click', function (evt) {
-    closeForm();
-  });
+  var cancelBtn = form.querySelector('.upload-form-cancel');
 
-  descriptionForm.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === ESC_KEYCODE) {
-      evt.stopPropagation();
-    }
-  });
-
-  cancelBtn.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === ENTER_KEYCODE) {
+  function onCancelBtnClick() {
+    cancelBtn.addEventListener('click', function (evt) {
       closeForm();
-    }
-  });
+    });
+  }
+  onCancelBtnClick();
+
+  function onDescriptionKeydown() {
+    descriptionForm.addEventListener('keydown', function (evt) {
+      if (evt.keyCode === ESC_KEYCODE) {
+        evt.stopPropagation();
+      }
+    });
+  }
+  onDescriptionKeydown();
+
+  function onCancelBtnKeydown() {
+    cancelBtn.addEventListener('keydown', function (evt) {
+      if (evt.keyCode === ENTER_KEYCODE) {
+        closeForm();
+      }
+    });
+  }
+  onCancelBtnKeydown();
 
   function validateDescription() {
     if (descriptionForm.value.length < 30) {
@@ -231,6 +251,8 @@
   }
 
   // !! Не знаю, как сделать валидацию хеш-тегов, ничего не работает
+
+  // var hashtags = form.querySelector('.upload-form-hashtags');
   // function validateHashtags() {
     // hashtags.addEventListener('focus', function (evt) {
       // var hashtagsArr = hashtags.value.split(' ');
@@ -264,29 +286,36 @@
     }
   }
 
-  formResizeControls.value = '100%';
+  function onMinusClick() {
+    var formResizeMinus = form.querySelector('.upload-resize-controls-button-dec');
+    formResizeMinus.addEventListener('click', function (evt) {
+      var formResizeCtrls = Number(formResizeControls.value.replace(/%/g, ''));
+      formResizeCtrls -= 25;
+      formResizeControls.value = formResizeCtrls + '%';
+      var transform = 'scale(0.' + (formResizeControls.value.replace(/%/g, '')) + ')';
+      scaleImage.setAttribute('style', ('transform: ' + transform));
 
-  formResizeMinus.addEventListener('click', function (evt) {
-    var formResizeCtrls = Number(formResizeControls.value.replace(/%/g, ''));
-    formResizeCtrls -= 25;
-    formResizeControls.value = formResizeCtrls + '%';
-    var transform = 'scale(0.' + (formResizeControls.value.replace(/%/g, '')) + ')';
-    scaleImage.setAttribute('style', ('transform: ' + transform));
+      getMinMax(formResizeCtrls);
+    });
+  }
+  onMinusClick();
 
-    getMinMax(formResizeCtrls);
-  });
+  function onPlusClick() {
+    var formResizePlus = form.querySelector('.upload-resize-controls-button-inc');
+    formResizePlus.addEventListener('click', function (evt) {
+      var formResizeCtrls = Number(formResizeControls.value.replace(/%/g, ''));
+      formResizeCtrls += 25;
+      formResizeControls.value = formResizeCtrls + '%';
+      var transform = 'scale(0.' + (formResizeControls.value.replace(/%/g, '')) + ')';
+      scaleImage.setAttribute('style', ('transform: ' + transform));
 
-  formResizePlus.addEventListener('click', function (evt) {
-    var formResizeCtrls = Number(formResizeControls.value.replace(/%/g, ''));
-    formResizeCtrls += 25;
-    formResizeControls.value = formResizeCtrls + '%';
-    var transform = 'scale(0.' + (formResizeControls.value.replace(/%/g, '')) + ')';
-    scaleImage.setAttribute('style', ('transform: ' + transform));
-
-    getMinMax(formResizeCtrls);
-  });
+      getMinMax(formResizeCtrls);
+    });
+  }
+  onPlusClick();
 
   function onEffectControlsClick() {
+    var effectControls = form.querySelector('.upload-effect-controls');
     effectControls.addEventListener('click', function (evt) {
       evt.preventDefault();
       var target = evt.target;
@@ -304,39 +333,31 @@
   }
   onEffectControlsClick();
 
-  submitBtn.addEventListener('click', function (evt) {
-    if (validateDescription()) {
-      evt.preventDefault();
-      var classes = scaleImage.className.split(' ');
-      if (classes.length === 2) {
-        scaleImage.classList.remove(classes[1]);
-        classes.splice(1, 1);
-      }
-      descriptionForm.setAttribute('style', 'box-shadow: none');
-      scaleImage.style = 'transform: scale(1)';
-      formResizeControls.setAttribute('value', '100%');
-      form.reset();
-      return true;
-    } else {
-      return false;
-    }
-  });
+  var submitBtn = form.querySelector('.upload-form-submit');
 
-  submitBtn.addEventListener('keydown', function (evt) {
-    if ((evt.keyCode === ENTER_KEYCODE) && (validateDescription())) {
-      evt.preventDefault();
-      var classes = scaleImage.className.split(' ');
-      if (classes.length === 2) {
-        scaleImage.classList.remove(classes[1]);
-        classes.splice(1, 1);
+  function onSubmitBtnClick() {
+    submitBtn.addEventListener('click', function (evt) {
+      if (validateDescription()) {
+        evt.preventDefault();
+        resetForm();
+        return true;
+      } else {
+        return false;
       }
-      descriptionForm.setAttribute('style', 'box-shadow: none');
-      scaleImage.style = 'transform: scale(1)';
-      formResizeControls.setAttribute('value', '100%');
-      form.reset();
-      return true;
-    } else {
-      return false;
-    }
-  });
+    });
+  }
+  onSubmitBtnClick();
+
+  function onSubmitBtnKeydown() {
+    submitBtn.addEventListener('keydown', function (evt) {
+      if ((evt.keyCode === ENTER_KEYCODE) && (validateDescription())) {
+        evt.preventDefault();
+        resetForm();
+        return true;
+      } else {
+        return false;
+      }
+    });
+  }
+  onSubmitBtnKeydown();
 })();

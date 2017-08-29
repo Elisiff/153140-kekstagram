@@ -37,10 +37,8 @@
   function onUploadFileClick() {
     var uploadFile = form.querySelector('.upload-input');
     uploadFile.addEventListener('change', function (evt) {
-      if (evt.target.value !== '') {
-        resetForm();
-        openForm();
-      }
+      resetForm();
+      openForm();
     });
   }
   onUploadFileClick();
@@ -87,38 +85,52 @@
     }
   }
 
-  // !! Не знаю, как сделать валидацию хеш-тегов, ничего не работает
-
   var hashtagsField = form.querySelector('.upload-form-hashtags');
 
-  function validateHashtags(tags) {
-    var filterHashtags = /^#\w+$/;
-    tags.forEach(function (item, i) {
-      if (tags.length > 5) {
+  function validateHashtags() {
+    var hashtagsFieldValue = ((hashtagsField.value) || ('')).trim(); // удаляем пробелы в начале и конце строки
+
+    if (hashtagsFieldValue) {
+      var hashtags = hashtagsFieldValue.split(/\s+/); // считаем 1 и более пробел за 1 пробел
+
+      if (hashtags.length > 5) {
         hashtagsField.setCustomValidity('Хэш-тегов должно быть не более 5');
         hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
-        return false;
-      } else
-      if ((!filterHashtags.test(tags[i])) && (tags[0] !== '')) {
-        hashtagsField.setCustomValidity('Хэш-тег должен начинаться с # и состоять еще из одного символа');
-        hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
-        return false;
-      } else
-      if (tags[i].length > 20) {
-        hashtagsField.setCustomValidity('Длина одного хэш-тега — не более 20 символов');
-        hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
-        return false;
       } else {
-      // if (tags !== hashtagsField.value.split(' ')) {
-      //   hashtagsField.setCustomValidity('wtttg');
-      //   hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
-      //   return false;
-      // } else {
-        hashtagsField.setCustomValidity('');
-        hashtagsField.setAttribute('style', 'box-shadow: none');
-        return true;
+        var customValidityMessage = null;
+        var i = 0;
+
+        for (i = 0; i < hashtags.length && customValidityMessage === null; i++) {
+          if (!(hashtags[i].startsWith('#'))) {
+            customValidityMessage = 'Хэш-тег должен начинаться с # и состоять еще из одного символа';
+          } else
+          if (hashtags[i].endsWith(',')) {
+            customValidityMessage = 'Хэш-теги должны разделяться пробелами и не могут заканчиваться запятой';
+          } else
+          if (hashtags[i].split('#').length > 2) {
+            customValidityMessage = 'Хэш-теги должны разделяться пробелами';
+          } else
+          if (hashtags[i].length > 20) {
+            customValidityMessage = 'Длина одного хэш-тега не должна превышать 20 символов';
+          } else
+          if (hashtags.indexOf(hashtags[i]) !== i) {
+            customValidityMessage = 'Хэш-теги не должны повторяться';
+          }
+        }
+
+        if (customValidityMessage) {
+          hashtagsField.setCustomValidity(customValidityMessage);
+          hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
+        } else {
+          hashtagsFieldValid();
+        }
       }
-    });
+    }
+  }
+
+  function hashtagsFieldValid() {
+    hashtagsField.setCustomValidity('');
+    hashtagsField.setAttribute('style', 'box-shadow: none;');
   }
 
   function getMinMax(scale) {
@@ -183,11 +195,8 @@
 
   function onSubmitBtnClick() {
     submitBtn.addEventListener('click', function (evt) {
-      var hashtags = hashtagsField.value.split(' ');
-      // console.log(hashtags);
-      validateHashtags(hashtags);
 
-      if (validateDescription() && validateHashtags(hashtags)) {
+      if (validateDescription() && validateHashtags()) {
         evt.preventDefault();
         resetForm();
         return true;
@@ -198,13 +207,10 @@
   }
   onSubmitBtnClick();
 
-
   function onSubmitBtnKeydown() {
     submitBtn.addEventListener('keydown', function (evt) {
-      var hashtags = hashtagsField.value.split(' ');
-      validateHashtags(hashtags);
 
-      if ((evt.keyCode === window.ENTER_KEYCODE) && (validateDescription())) {
+      if ((evt.keyCode === window.ENTER_KEYCODE) && (validateDescription()) && validateHashtags()) {
         evt.preventDefault();
         resetForm();
         return true;

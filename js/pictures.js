@@ -15,12 +15,12 @@
   function appendFragments() {
     var fragment = document.createDocumentFragment();
 
-    for (var i = 0; i < photosArray.length; i++) {
-      fragment.appendChild(setPicture(photosArray[i]));
+    for (var i = 0; i < window.photosArray.length; i++) {
+      fragment.appendChild(setPicture(window.photosArray[i]));
     }
     return fragment;
   }
 
   window.picturesContainer = document.querySelector('.pictures');
-  picturesContainer.appendChild(appendFragments(photosArray));
+  window.picturesContainer.appendChild(appendFragments(window.photosArray));
 })();

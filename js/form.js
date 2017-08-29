@@ -56,7 +56,7 @@
 
   function onDescriptionKeydown() {
     descriptionForm.addEventListener('keydown', function (evt) {
-      if (evt.keyCode === ESC_KEYCODE) {
+      if (evt.keyCode === window.ESC_KEYCODE) {
         evt.stopPropagation();
       }
     });
@@ -204,7 +204,7 @@
       var hashtags = hashtagsField.value.split(' ');
       validateHashtags(hashtags);
 
-      if ((evt.keyCode === ENTER_KEYCODE) && (validateDescription())) {
+      if ((evt.keyCode === window.ENTER_KEYCODE) && (validateDescription())) {
         evt.preventDefault();
         resetForm();
         return true;

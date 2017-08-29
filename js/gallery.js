@@ -27,7 +27,7 @@
 
         for (var k = 0; k < picture.length; k++) {
           if (picture[k].querySelector('img') === target) {
-            gallery.appendChild(getPictureInGallery(photosArray[k]));
+            gallery.appendChild(window.getPictureInGallery(window.photosArray[k]));
           }
         }
         openGalleryOverlay();
@@ -41,10 +41,10 @@
       picture[i].addEventListener('keydown', function (evt) {
         var target = evt.target;
 
-        if (evt.keyCode === ENTER_KEYCODE) {
+        if (evt.keyCode === window.ENTER_KEYCODE) {
           for (var k = 0; k < picture.length; k++) {
             if (picture[k] === target) {
-              gallery.appendChild(getPictureInGallery(photosArray[k]));
+              gallery.appendChild(window.getPictureInGallery(window.photosArray[k]));
             }
           }
           openGalleryOverlay();

@@ -36,7 +36,7 @@
 
   function onUploadFileClick() {
     var uploadFile = form.querySelector('.upload-input');
-    uploadFile.addEventListener('change', function (evt) {
+    uploadFile.addEventListener('click', function (evt) {
       resetForm();
       openForm();
     });

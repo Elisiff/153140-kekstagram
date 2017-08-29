@@ -29,7 +29,6 @@
       scaleImage.classList.remove(classes[1]);
       classes.splice(1, 1);
     }
-    descriptionForm.setAttribute('style', 'box-shadow: none');
     scaleImage.style = 'transform: scale(1)';
     formResizeControls.setAttribute('value', '100%');
     form.reset();
@@ -83,34 +82,44 @@
       return false;
     } else {
       descriptionForm.setCustomValidity('');
+      descriptionForm.setAttribute('style', 'box-shadow: none');
       return true;
     }
   }
 
   // !! Не знаю, как сделать валидацию хеш-тегов, ничего не работает
 
-  // var hashtags = form.querySelector('.upload-form-hashtags');
-  // function validateHashtags() {
-    // hashtags.addEventListener('focus', function (evt) {
-      // var hashtagsArr = hashtags.value.split(' ');
-      // console.log(hashtagsArr);
-      // var filterHashtags = /^\#[0-9a-z]+/i;
+  var hashtagsField = form.querySelector('.upload-form-hashtags');
 
-      // for (i = 0; i < hashtagsArr.length; i++) {
-      // if ((hashtagsArr.length <= 5) && (hashtagsArr.length >= 0)) {
-        // return false;
-      // }
-      // else
-      // if (filterHashtags.test(hashtagsArr[i])) {
-      //   return true;
-      // }
-
-      // else {
-      //   return true;
-      // }
-    // });
-    // }
-  // }
+  function validateHashtags(tags) {
+    var filterHashtags = /^#\w+$/;
+    tags.forEach(function (item, i) {
+      if (tags.length > 5) {
+        hashtagsField.setCustomValidity('Хэш-тегов должно быть не более 5');
+        hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
+        return false;
+      } else
+      if ((!filterHashtags.test(tags[i])) && (tags[0] !== '')) {
+        hashtagsField.setCustomValidity('Хэш-тег должен начинаться с # и состоять еще из одного символа');
+        hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
+        return false;
+      } else
+      if (tags[i].length > 20) {
+        hashtagsField.setCustomValidity('Длина одного хэш-тега — не более 20 символов');
+        hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
+        return false;
+      } else {
+      // if (tags !== hashtagsField.value.split(' ')) {
+      //   hashtagsField.setCustomValidity('wtttg');
+      //   hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
+      //   return false;
+      // } else {
+        hashtagsField.setCustomValidity('');
+        hashtagsField.setAttribute('style', 'box-shadow: none');
+        return true;
+      }
+    });
+  }
 
   function getMinMax(scale) {
     if (scale >= 100) {
@@ -174,7 +183,11 @@
 
   function onSubmitBtnClick() {
     submitBtn.addEventListener('click', function (evt) {
-      if (validateDescription()) {
+      var hashtags = hashtagsField.value.split(' ');
+      // console.log(hashtags);
+      validateHashtags(hashtags);
+
+      if (validateDescription() && validateHashtags(hashtags)) {
         evt.preventDefault();
         resetForm();
         return true;
@@ -185,8 +198,12 @@
   }
   onSubmitBtnClick();
 
+
   function onSubmitBtnKeydown() {
     submitBtn.addEventListener('keydown', function (evt) {
+      var hashtags = hashtagsField.value.split(' ');
+      validateHashtags(hashtags);
+
       if ((evt.keyCode === ENTER_KEYCODE) && (validateDescription())) {
         evt.preventDefault();
         resetForm();

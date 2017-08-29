@@ -17,24 +17,26 @@
     document.removeEventListener('keydown', pressEsc);
   }
 
-  function onPictureClick() {
-    picturesContainer.addEventListener('click', function (evt) {
-      evt.preventDefault();
-      var target = evt.target;
+  var picture = document.querySelectorAll('.picture');
 
-      for (var i = 0; i < picturesContainer.children.length; i++) {
-        if (picturesContainer.children[i].querySelector('img') === target) {
-          gallery.appendChild(getPictureInGallery(photosArray[i]));
+  function onPictureClick() {
+    for (var i = 0; i < picture.length; i++) {
+      picture[i].addEventListener('click', function (evt) {
+        evt.preventDefault();
+        var target = evt.target;
+
+        for (var k = 0; k < picture.length; k++) {
+          if (picture[k].querySelector('img') === target) {
+            gallery.appendChild(getPictureInGallery(photosArray[k]));
+          }
         }
-      }
-      openGalleryOverlay();
-    });
+        openGalleryOverlay();
+      });
+    }
   }
   onPictureClick();
 
   function onPictureEnterPress() {
-    var picture = document.querySelectorAll('.picture');
-
     for (var i = 0; i < picture.length; i++) {
       picture[i].addEventListener('keydown', function (evt) {
         var target = evt.target;

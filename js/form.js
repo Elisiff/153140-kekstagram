@@ -8,9 +8,11 @@
   }
 
   var formUploadOverlay = form.querySelector('.upload-overlay');
+  var levelContainer = form.querySelector('.upload-effect-level');
 
   function openForm() {
     formUploadOverlay.classList.remove('hidden');
+    levelContainer.classList.add('hidden');
     document.addEventListener('keydown', pressEscForm);
   }
 
@@ -30,12 +32,15 @@
       classes.splice(1, 1);
     }
     scaleImage.style = 'transform: scale(1)';
+    scaleImage.setAttribute('style', 'filter: none');
     formResizeControls.setAttribute('value', '100%');
+    levelContainer.classList.add('hidden');
     form.reset();
   }
 
   function onUploadFileClick() {
     var uploadFile = form.querySelector('.upload-input');
+
     uploadFile.addEventListener('click', function (evt) {
       resetForm();
       openForm();
@@ -133,14 +138,24 @@
     hashtagsField.setAttribute('style', 'box-shadow: none;');
   }
 
+  function addEffect() {
+    if (scaleImage.classList.contains('effect-chrome')) {
+      window.effect = 'grayscale(' + (window.levelStyleX / window.levelBarWidth) + ')';
+    } else {
+      levelContainer.classList.remove('hidden');
+    }
+  }
+
   function getMinMax(scale) {
     if (scale >= 100) {
       formResizeControls.value = '100%';
-      scaleImage.setAttribute('style', 'transform: scale(1)');
+      addEffect();
+      scaleImage.style.cssText = 'transform: scale(1); filter: ' + window.effect + ';';
     } else
     if (scale <= 25) {
       formResizeControls.value = '25%';
-      scaleImage.setAttribute('style', 'transform: scale(0.25)');
+      addEffect();
+      scaleImage.style.cssText = 'transform: scale(0.25); filter: ' + window.effect + ';';
     }
   }
 
@@ -151,7 +166,8 @@
       formResizeCtrls -= 25;
       formResizeControls.value = formResizeCtrls + '%';
       var transform = 'scale(0.' + (formResizeControls.value.replace(/%/g, '')) + ')';
-      scaleImage.setAttribute('style', ('transform: ' + transform));
+      addEffect();
+      scaleImage.style.cssText = 'transform: ' + transform + '; filter: ' + window.effect + ';';
 
       getMinMax(formResizeCtrls);
     });
@@ -165,27 +181,118 @@
       formResizeCtrls += 25;
       formResizeControls.value = formResizeCtrls + '%';
       var transform = 'scale(0.' + (formResizeControls.value.replace(/%/g, '')) + ')';
-      scaleImage.setAttribute('style', ('transform: ' + transform));
+      addEffect();
+      scaleImage.style.cssText = 'transform: ' + transform + '; filter: ' + window.effect + ';';
 
       getMinMax(formResizeCtrls);
     });
   }
   onPlusClick();
 
+  var level = form.querySelector('.upload-effect-level-pin');
+
+  function onLevelMove() {
+    var levelBar = form.querySelector('.upload-effect-level-line');
+    var levelContainerWidth = getComputedStyle(levelContainer).width;
+    levelContainerWidth = Number(levelContainerWidth.replace(/px/, ''));
+    var levelBarPaddingL = getComputedStyle(levelBar).left;
+    levelBarPaddingL = Number(levelBarPaddingL.replace(/px/, ''));
+    var levelBarPaddingR = getComputedStyle(levelBar).right;
+    levelBarPaddingR = Number(levelBarPaddingR.replace(/px/, ''));
+    window.levelBarWidth = levelContainerWidth - (levelBarPaddingL + levelBarPaddingR);
+    var levelMiniBar = form.querySelector('.upload-effect-level-val');
+    window.levelStyleX = Number(getComputedStyle(level).left.replace(/%/, '')) * window.levelBarWidth / 100;
+
+    level.addEventListener('mousedown', function (evt) {
+      evt.preventDefault();
+
+      var startCoords = {
+        x: evt.clientX
+      };
+
+      function onMouseMove(moveEvt) {
+        moveEvt.preventDefault();
+
+        var shift = {
+          x: startCoords.x - moveEvt.clientX
+        };
+
+        startCoords = {
+          x: moveEvt.clientX
+        };
+
+        level.style.left = (level.offsetLeft - shift.x) + 'px';
+        levelMiniBar.style.width = level.style.left;
+
+        if (level.offsetLeft > window.levelBarWidth) {
+          level.style.left = window.levelBarWidth + 'px';
+          levelMiniBar.style.width = level.style.left;
+        } else
+        if (level.offsetLeft < 0) {
+          level.style.left = 0 + 'px';
+          levelMiniBar.style.width = level.style.left;
+        }
+
+        window.levelStyleX = Number(level.style.left.replace(/px/, ''));
+        var styleTransform = scaleImage.style.transform;
+
+        if (scaleImage.classList.contains('effect-chrome')) {
+          addEffect();
+          scaleImage.style.cssText = 'transform: ' + styleTransform + '; filter: ' + window.effect + ';';
+        } else {
+          addEffect();
+          scaleImage.style.cssText = 'transform: ' + styleTransform + '; filter: none;';
+        }
+      }
+
+      var onMouseUp = function (upEvt) {
+        upEvt.preventDefault();
+
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      };
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+  }
+  onLevelMove();
+
   function onEffectControlsClick() {
     var effectControls = form.querySelector('.upload-effect-controls');
     effectControls.addEventListener('click', function (evt) {
       evt.preventDefault();
       var target = evt.target;
+
+      // formResizeControls.value = '100%';
+      // scaleImage.setAttribute('style', 'transform: scale(1)')
+
       var parentTarget = target.parentNode;
       var attributeFor = parentTarget.getAttribute('for');
-      var key = attributeFor.replace(/upload-/, '');
-      scaleImage.classList.add(key);
+      if (!(attributeFor === null)) {
+        var key = attributeFor.replace(/upload-/, '');
+        scaleImage.classList.add(key);
+      }
+
       var classes = scaleImage.className.split(' ');
 
       if (classes.length > 2) {
         scaleImage.classList.remove(classes[1]);
         classes.splice(1, 1);
+      }
+
+      var styleTransform = scaleImage.style.transform;
+
+
+      if ((classes.length === 1) || scaleImage.classList.contains('effect-none')) {
+        levelContainer.classList.add('hidden');
+      } else
+      if (scaleImage.classList.contains('effect-chrome')) {
+        addEffect();
+        scaleImage.style.cssText = 'transform: ' + styleTransform + '; filter: ' + window.effect + ';';
+        levelContainer.classList.remove('hidden');
+      } else {
+        levelContainer.classList.remove('hidden');
       }
     });
   }

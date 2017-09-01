@@ -41,7 +41,7 @@
   function onUploadFileClick() {
     var uploadFile = form.querySelector('.upload-input');
 
-    uploadFile.addEventListener('click', function (evt) {
+    uploadFile.addEventListener('change', function (evt) {
       resetForm();
       openForm();
     });
@@ -94,59 +94,47 @@
 
   function validateHashtags() {
     var hashtagsFieldValue = ((hashtagsField.value) || ('')).trim(); // удаляем пробелы в начале и конце строки
+    var hashtags = hashtagsFieldValue.split(/\s+/); // считаем 1 и более пробел за 1 пробел
 
-    if (hashtagsFieldValue) {
-      var hashtags = hashtagsFieldValue.split(/\s+/); // считаем 1 и более пробел за 1 пробел
-
+    if (!(hashtagsFieldValue === '')) {
       if (hashtags.length > 5) {
         hashtagsField.setCustomValidity('Хэш-тегов должно быть не более 5');
         hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
+        return false;
       } else {
-        var customValidityMessage = null;
-
-        for (var i = 0; (i < hashtags.length) && (customValidityMessage === null); i++) {
+        for (var i = 0; i < hashtags.length; i++) {
           if (!(hashtags[i].startsWith('#'))) {
-            customValidityMessage = 'Хэш-тег должен начинаться с # и состоять еще из одного символа';
+            hashtagsField.setCustomValidity('Хэш-тег должен начинаться с # и состоять еще из одного символа');
+            hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
+            return false;
           } else
           if (hashtags[i].endsWith(',')) {
-            customValidityMessage = 'Хэш-теги должны разделяться пробелами и не могут заканчиваться запятой';
+            hashtagsField.setCustomValidity('Хэш-теги должны разделяться пробелами и не могут заканчиваться запятой');
+            hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
+            return false;
           } else
           if (hashtags[i].split('#').length > 2) {
-            customValidityMessage = 'Хэш-теги должны разделяться пробелами';
+            hashtagsField.setCustomValidity('Хэш-теги должны разделяться пробелами');
+            hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
+            return false;
           } else
           if (hashtags[i].length > 20) {
-            customValidityMessage = 'Длина одного хэш-тега не должна превышать 20 символов';
+            hashtagsField.setCustomValidity('Длина одного хэш-тега не должна превышать 20 символов');
+            hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
+            return false;
           } else
           if (hashtags.indexOf(hashtags[i]) !== i) {
-            customValidityMessage = 'Хэш-теги не должны повторяться';
+            hashtagsField.setCustomValidity('Хэш-теги не должны повторяться');
+            hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
+            return false;
           }
-
-          // switch (true) {
-          //   case (!(hashtags[i].startsWith('#'))):
-          //   customValidityMessage = 'Хэш-тег должен начинаться с # и состоять еще из одного символа';
-          //   break;
-          //   case (hashtags[i].endsWith(',')):
-          //   customValidityMessage = 'Хэш-теги должны разделяться пробелами и не могут заканчиваться запятой';
-          //   break;
-          //   case (hashtags[i].split('#').length > 2):
-          //   customValidityMessage = 'Хэш-теги должны разделяться пробелами';
-          //   break;
-          //   case (hashtags[i].length > 20):
-          //   customValidityMessage = 'Длина одного хэш-тега не должна превышать 20 символов';
-          //   break;
-          //   case (hashtags.indexOf(hashtags[i]) !== i):
-          //   customValidityMessage = 'Хэш-теги не должны повторяться';
-          //   break;
-          // }
         }
-
-        if (customValidityMessage) {
-          hashtagsField.setCustomValidity(customValidityMessage);
-          hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
-        } else {
-          hashtagsFieldValid();
-        }
+        hashtagsFieldValid();
+        return true;
       }
+    } else {
+      hashtagsFieldValid();
+      return true;
     }
   }
 
@@ -342,6 +330,7 @@
 
       if (validateHashtags() && validateDescription()) {
         evt.preventDefault();
+        form.submit();
         resetForm();
         return true;
       } else {
@@ -356,6 +345,7 @@
 
       if ((evt.keyCode === window.ENTER_KEYCODE) && (validateHashtags() && validateDescription())) {
         evt.preventDefault();
+        form.submit();
         resetForm();
         return true;
       } else {

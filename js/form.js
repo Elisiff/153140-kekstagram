@@ -26,10 +26,10 @@
   var formResizeControls = form.querySelector('.upload-resize-controls-value');
 
   function resetForm() {
-    var classes = scaleImage.className.split(' ');
-    if (classes.length === 2) {
-      scaleImage.classList.remove(classes[1]);
-      classes.splice(1, 1);
+    window.classes = scaleImage.className.split(' ');
+    if (window.classes.length === 2) {
+      scaleImage.classList.remove(window.classes[1]);
+      window.classes.splice(1, 1);
     }
     scaleImage.style = 'transform: scale(1)';
     scaleImage.setAttribute('style', 'filter: none');
@@ -103,9 +103,8 @@
         hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
       } else {
         var customValidityMessage = null;
-        var i = 0;
 
-        for (i = 0; i < hashtags.length && customValidityMessage === null; i++) {
+        for (var i = 0; (i < hashtags.length) && (customValidityMessage === null); i++) {
           if (!(hashtags[i].startsWith('#'))) {
             customValidityMessage = 'Хэш-тег должен начинаться с # и состоять еще из одного символа';
           } else
@@ -121,6 +120,24 @@
           if (hashtags.indexOf(hashtags[i]) !== i) {
             customValidityMessage = 'Хэш-теги не должны повторяться';
           }
+
+          // switch (true) {
+          //   case (!(hashtags[i].startsWith('#'))):
+          //   customValidityMessage = 'Хэш-тег должен начинаться с # и состоять еще из одного символа';
+          //   break;
+          //   case (hashtags[i].endsWith(',')):
+          //   customValidityMessage = 'Хэш-теги должны разделяться пробелами и не могут заканчиваться запятой';
+          //   break;
+          //   case (hashtags[i].split('#').length > 2):
+          //   customValidityMessage = 'Хэш-теги должны разделяться пробелами';
+          //   break;
+          //   case (hashtags[i].length > 20):
+          //   customValidityMessage = 'Длина одного хэш-тега не должна превышать 20 символов';
+          //   break;
+          //   case (hashtags.indexOf(hashtags[i]) !== i):
+          //   customValidityMessage = 'Хэш-теги не должны повторяться';
+          //   break;
+          // }
         }
 
         if (customValidityMessage) {
@@ -141,8 +158,21 @@
   function addEffect() {
     if (scaleImage.classList.contains('effect-chrome')) {
       window.effect = 'grayscale(' + (window.levelStyleX / window.levelBarWidth) + ')';
-    } else {
-      levelContainer.classList.remove('hidden');
+    } else
+    if (scaleImage.classList.contains('effect-sepia')) {
+      window.effect = 'sepia(' + (window.levelStyleX / window.levelBarWidth) + ')';
+    } else
+    if (scaleImage.classList.contains('effect-marvin')) {
+      window.effect = 'invert(' + (window.levelStyleX * 100 / window.levelBarWidth) + '%)';
+    } else
+    if (scaleImage.classList.contains('effect-phobos')) {
+      window.effect = 'blur(' + (window.levelStyleX * 3 / window.levelBarWidth) + 'px)';
+    } else
+    if (scaleImage.classList.contains('effect-heat')) {
+      window.effect = 'brightness(' + (window.levelStyleX * 3 / window.levelBarWidth) + ')';
+    } else
+    if ((window.classes.length === 1) || scaleImage.classList.contains('effect-none')) {
+      window.effect = 'none';
     }
   }
 
@@ -150,12 +180,12 @@
     if (scale >= 100) {
       formResizeControls.value = '100%';
       addEffect();
-      scaleImage.style.cssText = 'transform: scale(1); filter: ' + window.effect + ';';
+      scaleImage.style.cssText = 'transform: scale(1); filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
     } else
     if (scale <= 25) {
       formResizeControls.value = '25%';
       addEffect();
-      scaleImage.style.cssText = 'transform: scale(0.25); filter: ' + window.effect + ';';
+      scaleImage.style.cssText = 'transform: scale(0.25); filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
     }
   }
 
@@ -167,7 +197,7 @@
       formResizeControls.value = formResizeCtrls + '%';
       var transform = 'scale(0.' + (formResizeControls.value.replace(/%/g, '')) + ')';
       addEffect();
-      scaleImage.style.cssText = 'transform: ' + transform + '; filter: ' + window.effect + ';';
+      scaleImage.style.cssText = 'transform: ' + transform + '; filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
 
       getMinMax(formResizeCtrls);
     });
@@ -182,7 +212,7 @@
       formResizeControls.value = formResizeCtrls + '%';
       var transform = 'scale(0.' + (formResizeControls.value.replace(/%/g, '')) + ')';
       addEffect();
-      scaleImage.style.cssText = 'transform: ' + transform + '; filter: ' + window.effect + ';';
+      scaleImage.style.cssText = 'transform: ' + transform + '; filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
 
       getMinMax(formResizeCtrls);
     });
@@ -190,6 +220,7 @@
   onPlusClick();
 
   var level = form.querySelector('.upload-effect-level-pin');
+  var levelMiniBar = form.querySelector('.upload-effect-level-val');
 
   function onLevelMove() {
     var levelBar = form.querySelector('.upload-effect-level-line');
@@ -200,7 +231,6 @@
     var levelBarPaddingR = getComputedStyle(levelBar).right;
     levelBarPaddingR = Number(levelBarPaddingR.replace(/px/, ''));
     window.levelBarWidth = levelContainerWidth - (levelBarPaddingL + levelBarPaddingR);
-    var levelMiniBar = form.querySelector('.upload-effect-level-val');
     window.levelStyleX = Number(getComputedStyle(level).left.replace(/%/, '')) * window.levelBarWidth / 100;
 
     level.addEventListener('mousedown', function (evt) {
@@ -236,12 +266,11 @@
         window.levelStyleX = Number(level.style.left.replace(/px/, ''));
         var styleTransform = scaleImage.style.transform;
 
-        if (scaleImage.classList.contains('effect-chrome')) {
-          addEffect();
-          scaleImage.style.cssText = 'transform: ' + styleTransform + '; filter: ' + window.effect + ';';
+        if ((window.classes.length === 1) || scaleImage.classList.contains('effect-none')) {
+          scaleImage.style.cssText = 'transform: ' + styleTransform + '; filter: none; -webkit-filter: none;';
         } else {
           addEffect();
-          scaleImage.style.cssText = 'transform: ' + styleTransform + '; filter: none;';
+          scaleImage.style.cssText = 'transform: ' + styleTransform + '; filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
         }
       }
 
@@ -263,34 +292,42 @@
     effectControls.addEventListener('click', function (evt) {
       evt.preventDefault();
       var target = evt.target;
-
-      // formResizeControls.value = '100%';
-      // scaleImage.setAttribute('style', 'transform: scale(1)')
-
       var parentTarget = target.parentNode;
       var attributeFor = parentTarget.getAttribute('for');
+      var input = form.querySelectorAll('input[type=radio]');
+      var inputRadio = form.querySelector('input[id=' + attributeFor + ']');
+
       if (!(attributeFor === null)) {
         var key = attributeFor.replace(/upload-/, '');
         scaleImage.classList.add(key);
+
+        for (var i = 0; i < input.length; i++) {
+          if (input[i].checked) {
+            input[i].removeAttribute('checked');
+          }
+        }
+        inputRadio.setAttribute('checked', '');
       }
 
-      var classes = scaleImage.className.split(' ');
+      window.classes = scaleImage.className.split(' ');
 
-      if (classes.length > 2) {
-        scaleImage.classList.remove(classes[1]);
-        classes.splice(1, 1);
+      if (window.classes.length > 2) {
+        scaleImage.classList.remove(window.classes[1]);
+        window.classes.splice(1, 1);
       }
 
-      var styleTransform = scaleImage.style.transform;
-
-
-      if ((classes.length === 1) || scaleImage.classList.contains('effect-none')) {
-        levelContainer.classList.add('hidden');
-      } else
-      if (scaleImage.classList.contains('effect-chrome')) {
+      if (scaleImage.classList.contains(key)) {
+        var defaultLevel = window.levelBarWidth * 20 / 100;
+        formResizeControls.value = '100%';
+        window.levelStyleX = defaultLevel;
         addEffect();
-        scaleImage.style.cssText = 'transform: ' + styleTransform + '; filter: ' + window.effect + ';';
-        levelContainer.classList.remove('hidden');
+        scaleImage.style.cssText = 'transform: scale(1); filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
+        level.style.left = defaultLevel + 'px';
+        levelMiniBar.style.width = level.style.left;
+      }
+
+      if (scaleImage.classList.contains('effect-none')) {
+        levelContainer.classList.add('hidden');
       } else {
         levelContainer.classList.remove('hidden');
       }
@@ -303,7 +340,7 @@
   function onSubmitBtnClick() {
     submitBtn.addEventListener('click', function (evt) {
 
-      if (validateDescription() && validateHashtags()) {
+      if (validateHashtags() && validateDescription()) {
         evt.preventDefault();
         resetForm();
         return true;
@@ -317,7 +354,7 @@
   function onSubmitBtnKeydown() {
     submitBtn.addEventListener('keydown', function (evt) {
 
-      if ((evt.keyCode === window.ENTER_KEYCODE) && (validateDescription()) && validateHashtags()) {
+      if ((evt.keyCode === window.ENTER_KEYCODE) && (validateHashtags() && validateDescription())) {
         evt.preventDefault();
         resetForm();
         return true;

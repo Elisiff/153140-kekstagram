@@ -4,10 +4,9 @@
   window.initializeFilters = function (applyFilter) {
     var form = document.querySelector('.upload-form');
     var scaleImage = form.querySelector('.effect-image-preview');
-    // debugger;
-  // function addEffect() {
+
     if (scaleImage.classList.contains('effect-chrome')) {
-      effect = 'grayscale(' + (window.levelStyleX / window.levelBarWidth) + ')';
+      var effect = 'grayscale(' + (window.levelStyleX / window.levelBarWidth) + ')';
       applyFilter(effect);
     } else
     if (scaleImage.classList.contains('effect-sepia')) {
@@ -30,8 +29,5 @@
       effect = 'none';
       applyFilter(effect);
     }
-    // }
-    // addEffect();
-    // debugger;
   };
 })();

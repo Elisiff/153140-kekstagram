@@ -153,27 +153,6 @@
     hashtagsField.setAttribute('style', 'box-shadow: none;');
   }
 
-  // function addEffect() {
-  //   if (scaleImage.classList.contains('effect-chrome')) {
-  //     window.effect = 'grayscale(' + (window.levelStyleX / window.levelBarWidth) + ')';
-  //   } else
-  //   if (scaleImage.classList.contains('effect-sepia')) {
-  //     window.effect = 'sepia(' + (window.levelStyleX / window.levelBarWidth) + ')';
-  //   } else
-  //   if (scaleImage.classList.contains('effect-marvin')) {
-  //     window.effect = 'invert(' + (window.levelStyleX * 100 / window.levelBarWidth) + '%)';
-  //   } else
-  //   if (scaleImage.classList.contains('effect-phobos')) {
-  //     window.effect = 'blur(' + (window.levelStyleX * 3 / window.levelBarWidth) + 'px)';
-  //   } else
-  //   if (scaleImage.classList.contains('effect-heat')) {
-  //     window.effect = 'brightness(' + (window.levelStyleX * 3 / window.levelBarWidth) + ')';
-  //   } else
-  //   if ((window.classes.length === 1) || scaleImage.classList.contains('effect-none')) {
-  //     window.effect = 'none';
-  //   }
-  // }
-
   function getScale() {
     var scaleElement = document.querySelector('.upload-resize-controls');
     var adjustScale = function (transform) {
@@ -229,21 +208,7 @@
         }
 
         window.levelStyleX = Number(level.style.left.replace(/px/, ''));
-
-        if ((window.classes.length === 1) || scaleImage.classList.contains('effect-none')) {
-          window.applyFilter = function (effect) {
-            scaleImage.style.cssText = 'filter: ' + effect + '; -webkit-filter: ' + effect + ';';
-          };
-          window.initializeFilters(applyFilter);
-          // scaleImage.style.cssText = 'filter: none; -webkit-filter: none;';
-        } else {
-          window.applyFilter = function (effect) {
-            scaleImage.style.cssText = 'filter: ' + effect + '; -webkit-filter: ' + effect + ';';
-          };
-          window.initializeFilters(applyFilter);
-          // addEffect();
-          // scaleImage.style.cssText = 'filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
-        }
+        window.initializeFilters(window.applyFilter);
       }
 
       var onMouseUp = function (upEvt) {
@@ -287,7 +252,6 @@
         window.classes.splice(1, 1);
       }
 
-      // Фильтры
       if (scaleImage.classList.contains(key)) {
         var defaultLevel = window.levelBarWidth * 20 / 100;
         formResizeControls.value = '100%';
@@ -296,9 +260,7 @@
         window.applyFilter = function (effect) {
           scaleImage.style.cssText = 'filter: ' + effect + '; -webkit-filter: ' + effect + ';';
         };
-        window.initializeFilters(applyFilter);
-        // addEffect();
-        // scaleImage.style.cssText = 'filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
+        window.initializeFilters(window.applyFilter);
         level.style.left = defaultLevel + 'px';
         levelMiniBar.style.width = level.style.left;
       }

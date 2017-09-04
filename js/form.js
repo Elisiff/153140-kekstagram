@@ -21,9 +21,11 @@
     document.removeEventListener('keydown', pressEscForm);
   }
 
+  var imagePreview = form.querySelector('.upload-form-preview');
   var scaleImage = form.querySelector('.effect-image-preview');
   var descriptionForm = form.querySelector('.upload-form-description');
   var formResizeControls = form.querySelector('.upload-resize-controls-value');
+  var input = form.querySelectorAll('input[type=radio]');
 
   function resetForm() {
     window.classes = scaleImage.className.split(' ');
@@ -31,7 +33,15 @@
       scaleImage.classList.remove(window.classes[1]);
       window.classes.splice(1, 1);
     }
-    scaleImage.style = 'transform: scale(1)';
+
+    for (var i = 0; i < input.length; i++) {
+      if (input[i].checked) {
+        input[i].removeAttribute('checked');
+      }
+    }
+    input[0].setAttribute('checked', '');
+
+    imagePreview.style = 'transform: scale(1)';
     scaleImage.setAttribute('style', 'filter: none');
     formResizeControls.setAttribute('value', '100%');
     levelContainer.classList.add('hidden');
@@ -143,69 +153,36 @@
     hashtagsField.setAttribute('style', 'box-shadow: none;');
   }
 
-  function addEffect() {
-    if (scaleImage.classList.contains('effect-chrome')) {
-      window.effect = 'grayscale(' + (window.levelStyleX / window.levelBarWidth) + ')';
-    } else
-    if (scaleImage.classList.contains('effect-sepia')) {
-      window.effect = 'sepia(' + (window.levelStyleX / window.levelBarWidth) + ')';
-    } else
-    if (scaleImage.classList.contains('effect-marvin')) {
-      window.effect = 'invert(' + (window.levelStyleX * 100 / window.levelBarWidth) + '%)';
-    } else
-    if (scaleImage.classList.contains('effect-phobos')) {
-      window.effect = 'blur(' + (window.levelStyleX * 3 / window.levelBarWidth) + 'px)';
-    } else
-    if (scaleImage.classList.contains('effect-heat')) {
-      window.effect = 'brightness(' + (window.levelStyleX * 3 / window.levelBarWidth) + ')';
-    } else
-    if ((window.classes.length === 1) || scaleImage.classList.contains('effect-none')) {
-      window.effect = 'none';
-    }
+  // function addEffect() {
+  //   if (scaleImage.classList.contains('effect-chrome')) {
+  //     window.effect = 'grayscale(' + (window.levelStyleX / window.levelBarWidth) + ')';
+  //   } else
+  //   if (scaleImage.classList.contains('effect-sepia')) {
+  //     window.effect = 'sepia(' + (window.levelStyleX / window.levelBarWidth) + ')';
+  //   } else
+  //   if (scaleImage.classList.contains('effect-marvin')) {
+  //     window.effect = 'invert(' + (window.levelStyleX * 100 / window.levelBarWidth) + '%)';
+  //   } else
+  //   if (scaleImage.classList.contains('effect-phobos')) {
+  //     window.effect = 'blur(' + (window.levelStyleX * 3 / window.levelBarWidth) + 'px)';
+  //   } else
+  //   if (scaleImage.classList.contains('effect-heat')) {
+  //     window.effect = 'brightness(' + (window.levelStyleX * 3 / window.levelBarWidth) + ')';
+  //   } else
+  //   if ((window.classes.length === 1) || scaleImage.classList.contains('effect-none')) {
+  //     window.effect = 'none';
+  //   }
+  // }
+
+  function getScale() {
+    var scaleElement = document.querySelector('.upload-resize-controls');
+    var adjustScale = function (transform) {
+      imagePreview.style.transform = transform;
+    };
+
+    window.initializeScale(scaleElement, adjustScale);
   }
-
-  function getMinMax(scale) {
-    if (scale >= 100) {
-      formResizeControls.value = '100%';
-      addEffect();
-      scaleImage.style.cssText = 'transform: scale(1); filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
-    } else
-    if (scale <= 25) {
-      formResizeControls.value = '25%';
-      addEffect();
-      scaleImage.style.cssText = 'transform: scale(0.25); filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
-    }
-  }
-
-  function onMinusClick() {
-    var formResizeMinus = form.querySelector('.upload-resize-controls-button-dec');
-    formResizeMinus.addEventListener('click', function (evt) {
-      var formResizeCtrls = Number(formResizeControls.value.replace(/%/g, ''));
-      formResizeCtrls -= 25;
-      formResizeControls.value = formResizeCtrls + '%';
-      var transform = 'scale(0.' + (formResizeControls.value.replace(/%/g, '')) + ')';
-      addEffect();
-      scaleImage.style.cssText = 'transform: ' + transform + '; filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
-
-      getMinMax(formResizeCtrls);
-    });
-  }
-  onMinusClick();
-
-  function onPlusClick() {
-    var formResizePlus = form.querySelector('.upload-resize-controls-button-inc');
-    formResizePlus.addEventListener('click', function (evt) {
-      var formResizeCtrls = Number(formResizeControls.value.replace(/%/g, ''));
-      formResizeCtrls += 25;
-      formResizeControls.value = formResizeCtrls + '%';
-      var transform = 'scale(0.' + (formResizeControls.value.replace(/%/g, '')) + ')';
-      addEffect();
-      scaleImage.style.cssText = 'transform: ' + transform + '; filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
-
-      getMinMax(formResizeCtrls);
-    });
-  }
-  onPlusClick();
+  getScale();
 
   var level = form.querySelector('.upload-effect-level-pin');
   var levelMiniBar = form.querySelector('.upload-effect-level-val');
@@ -252,13 +229,20 @@
         }
 
         window.levelStyleX = Number(level.style.left.replace(/px/, ''));
-        var styleTransform = scaleImage.style.transform;
 
         if ((window.classes.length === 1) || scaleImage.classList.contains('effect-none')) {
-          scaleImage.style.cssText = 'transform: ' + styleTransform + '; filter: none; -webkit-filter: none;';
+          window.applyFilter = function (effect) {
+            scaleImage.style.cssText = 'filter: ' + effect + '; -webkit-filter: ' + effect + ';';
+          };
+          window.initializeFilters(applyFilter);
+          // scaleImage.style.cssText = 'filter: none; -webkit-filter: none;';
         } else {
-          addEffect();
-          scaleImage.style.cssText = 'transform: ' + styleTransform + '; filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
+          window.applyFilter = function (effect) {
+            scaleImage.style.cssText = 'filter: ' + effect + '; -webkit-filter: ' + effect + ';';
+          };
+          window.initializeFilters(applyFilter);
+          // addEffect();
+          // scaleImage.style.cssText = 'filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
         }
       }
 
@@ -282,7 +266,6 @@
       var target = evt.target;
       var parentTarget = target.parentNode;
       var attributeFor = parentTarget.getAttribute('for');
-      var input = form.querySelectorAll('input[type=radio]');
       var inputRadio = form.querySelector('input[id=' + attributeFor + ']');
 
       if (!(attributeFor === null)) {
@@ -304,12 +287,18 @@
         window.classes.splice(1, 1);
       }
 
+      // Фильтры
       if (scaleImage.classList.contains(key)) {
         var defaultLevel = window.levelBarWidth * 20 / 100;
         formResizeControls.value = '100%';
+        imagePreview.style.transform = 'scale(1)';
         window.levelStyleX = defaultLevel;
-        addEffect();
-        scaleImage.style.cssText = 'transform: scale(1); filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
+        window.applyFilter = function (effect) {
+          scaleImage.style.cssText = 'filter: ' + effect + '; -webkit-filter: ' + effect + ';';
+        };
+        window.initializeFilters(applyFilter);
+        // addEffect();
+        // scaleImage.style.cssText = 'filter: ' + window.effect + '; -webkit-filter: ' + window.effect + ';';
         level.style.left = defaultLevel + 'px';
         levelMiniBar.style.width = level.style.left;
       }

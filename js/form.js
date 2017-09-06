@@ -48,10 +48,19 @@
     form.reset();
   }
 
+  // Изображение загружается с задержкой
   function onUploadFileClick() {
     var uploadFile = form.querySelector('.upload-input');
 
     uploadFile.addEventListener('change', function (evt) {
+      var reader = new FileReader();
+      var file = uploadFile.files[0];
+
+      scaleImage.src = '';
+      reader.onload = function () {
+        scaleImage.src = this.result;
+      };
+      reader.readAsDataURL(file);
       resetForm();
       openForm();
     });
@@ -276,13 +285,20 @@
 
   var submitBtn = form.querySelector('.upload-form-submit');
 
+  // Форма не отправляется
   function onSubmitBtnClick() {
     submitBtn.addEventListener('click', function (evt) {
 
       if (validateHashtags() && validateDescription()) {
         evt.preventDefault();
-        form.submit();
-        resetForm();
+
+        form.addEventListener('submit', function () {
+          window.backend.save(new FormData(form), function () {
+            closeForm();
+          }, window.errorHandler);
+          evt.preventDefault();
+        });
+        // resetForm();
         return true;
       } else {
         return false;

@@ -48,7 +48,6 @@
     form.reset();
   }
 
-  // Изображение загружается с задержкой
   function onUploadFileClick() {
     var uploadFile = form.querySelector('.upload-input');
 
@@ -283,22 +282,18 @@
   }
   onEffectControlsClick();
 
-  var submitBtn = form.querySelector('.upload-form-submit');
+  // var submitBtn = form.querySelector('.upload-form-submit');
 
   // Форма не отправляется
   function onSubmitBtnClick() {
-    submitBtn.addEventListener('click', function (evt) {
+    form.addEventListener('submit', function (evt) {
+      evt.preventDefault();
 
       if (validateHashtags() && validateDescription()) {
-        evt.preventDefault();
-
-        form.addEventListener('submit', function () {
-          window.backend.save(new FormData(form), function () {
-            closeForm();
-          }, window.errorHandler);
-          evt.preventDefault();
-        });
-        // resetForm();
+        window.backend.save(new FormData(form), function () {
+          closeForm();
+          resetForm();
+        }, window.errorHandler);
         return true;
       } else {
         return false;
@@ -307,18 +302,18 @@
   }
   onSubmitBtnClick();
 
-  function onSubmitBtnKeydown() {
-    submitBtn.addEventListener('keydown', function (evt) {
+  // function onSubmitBtnKeydown() {
+  //   submitBtn.addEventListener('keydown', function (evt) {
 
-      if ((evt.keyCode === window.ENTER_KEYCODE) && (validateHashtags() && validateDescription())) {
-        evt.preventDefault();
-        form.submit();
-        resetForm();
-        return true;
-      } else {
-        return false;
-      }
-    });
-  }
-  onSubmitBtnKeydown();
+  //     if ((evt.keyCode === window.ENTER_KEYCODE) && (validateHashtags() && validateDescription())) {
+  //       evt.preventDefault();
+  //       form.submit();
+  //       resetForm();
+  //       return true;
+  //     } else {
+  //       return false;
+  //     }
+  //   });
+  // }
+  // onSubmitBtnKeydown();
 })();

@@ -1,13 +1,22 @@
 'use strict';
 
 (function () {
-  window.getPictureInGallery = function (photos) {
+  window.getPictureInGallery = function (target, callback) {
     var galleryPreview = document.querySelector('.gallery-overlay-preview');
+    var targetData = target.dataSource || target.parentElement.dataSource;
 
-    galleryPreview.querySelector('.gallery-overlay-image').src = photos.url;
-    galleryPreview.querySelector('.likes-count').textContent = photos.likes;
-    galleryPreview.querySelector('.comments-count').textContent = photos.comments.length;
+    if (targetData) {
+      galleryPreview.querySelector('.gallery-overlay-image').src = targetData.url;
+      galleryPreview.querySelector('.likes-count').textContent = targetData.likes;
+      galleryPreview.querySelector('.comments-count').textContent = targetData.comments.length;
+    } else {
+      return false;
+    }
 
-    return galleryPreview;
+    if (typeof callback === 'function') {
+      callback();
+    }
+
+    return window.getPictureInGallery;
   };
 })();

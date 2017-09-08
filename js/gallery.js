@@ -2,6 +2,8 @@
 
 (function () {
   var gallery = document.querySelector('.gallery-overlay');
+  var galleryClose = gallery.querySelector('.gallery-overlay-close');
+  window.picturesContainer = document.querySelector('.pictures');
 
   function pressEsc(evt) {
     window.util.isEscEvent(evt, closeGalleryOverlay);
@@ -17,44 +19,27 @@
     document.removeEventListener('keydown', pressEsc);
   }
 
-  var picture = document.querySelectorAll('.picture');
-
   function onPictureClick() {
-    for (var i = 0; i < picture.length; i++) {
-      picture[i].addEventListener('click', function (evt) {
-        evt.preventDefault();
-        var target = evt.target;
-
-        for (var k = 0; k < picture.length; k++) {
-          if (picture[k].querySelector('img') === target) {
-            gallery.appendChild(window.getPictureInGallery(window.photosArray[k]));
-          }
-        }
-        openGalleryOverlay();
-      });
-    }
+    window.picturesContainer.addEventListener('click', function (evt) {
+      evt.preventDefault();
+      var target = evt.target;
+      window.getPictureInGallery(target, openGalleryOverlay);
+    });
   }
   onPictureClick();
 
-  function onPictureEnterPress() {
-    for (var i = 0; i < picture.length; i++) {
-      picture[i].addEventListener('keydown', function (evt) {
+  function onPictureKeydown() {
+    for (var i = 0; i < window.picturesContainer.children.length; i++) {
+      window.picturesContainer.children[i].addEventListener('keydown', function (evt) {
+        evt.preventDefault();
         var target = evt.target;
-
         if (evt.keyCode === window.ENTER_KEYCODE) {
-          for (var k = 0; k < picture.length; k++) {
-            if (picture[k] === target) {
-              gallery.appendChild(window.getPictureInGallery(window.photosArray[k]));
-            }
-          }
-          openGalleryOverlay();
+          window.getPictureInGallery(target, openGalleryOverlay);
         }
       });
     }
   }
-  onPictureEnterPress();
-
-  var galleryClose = gallery.querySelector('.gallery-overlay-close');
+  onPictureKeydown();
 
   function onGalleryCloseClick() {
     galleryClose.addEventListener('click', function () {

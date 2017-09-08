@@ -3,17 +3,17 @@
 (function () {
   function successHandler(photos) {
     var pictureTemplate = document.querySelector('#picture-template').content;
-    var picture = pictureTemplate.cloneNode(true);
+    window.picturesContainer = document.querySelector('.pictures');
     var fragment = document.createDocumentFragment();
 
     for (var i = 0; i < photos.length; i++) {
+      var picture = pictureTemplate.cloneNode(true);
       picture.querySelector('img').setAttribute('src', photos[i].url);
       picture.querySelector('.picture-likes').textContent = photos[i].likes;
       picture.querySelector('.picture-comments').textContent = photos[i].comments.length;
       fragment.appendChild(picture);
     }
 
-    window.picturesContainer = document.querySelector('.pictures');
     window.picturesContainer.appendChild(fragment);
 
     Array.prototype.forEach.call(window.picturesContainer.querySelectorAll('.picture'), function (item, index) {

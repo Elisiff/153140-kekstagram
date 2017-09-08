@@ -5,12 +5,18 @@
     var galleryPreview = document.querySelector('.gallery-overlay-preview');
     var targetData = target.dataSource || target.parentElement.dataSource;
 
-    galleryPreview.querySelector('.gallery-overlay-image').src = targetData.url;
-    galleryPreview.querySelector('.likes-count').textContent = targetData.likes;
-    galleryPreview.querySelector('.comments-count').textContent = targetData.comments.length;
+    if (targetData) {
+      galleryPreview.querySelector('.gallery-overlay-image').src = targetData.url;
+      galleryPreview.querySelector('.likes-count').textContent = targetData.likes;
+      galleryPreview.querySelector('.comments-count').textContent = targetData.comments.length;
+    } else {
+      return false;
+    }
 
     if (typeof callback === 'function') {
       callback();
     }
+
+    return window.getPictureInGallery;
   };
 })();

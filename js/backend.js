@@ -11,7 +11,7 @@
       if (xhr.status === 200) {
         onLoad(xhr.response);
       } else {
-        onError(xhr.response);
+        onError('Неизвестный статус: ' + xhr.status + ' ' + xhr.statusText);
       }
     });
     xhr.addEventListener('error', function () {
@@ -21,7 +21,7 @@
       onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
     });
 
-    xhr.timeout = 10000; // 10s
+    xhr.timeout = 60000; // 60s
 
     return xhr;
   }

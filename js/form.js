@@ -293,7 +293,7 @@
         window.backend.save(new FormData(form), function () {
           closeForm();
           resetForm();
-        }, window.errorHandler);
+        }, window.util.errorHandler);
         return true;
       } else {
         return false;

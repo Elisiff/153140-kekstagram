@@ -282,8 +282,6 @@
   }
   onEffectControlsClick();
 
-  // var submitBtn = form.querySelector('.upload-form-submit');
-
   // Форма не отправляется
   function onSubmitBtnClick() {
     form.addEventListener('submit', function (evt) {

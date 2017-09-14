@@ -78,22 +78,18 @@
 
     renderPhotos(photos);
 
-    // Обработчик на фильтр "Рекомендуемые"
     filterRecommend.addEventListener('click', function () {
       debounce.bind(renderPhotos(photos));
     });
 
-    // Обработчик на фильтр "Популярные"
     filterPopular.addEventListener('click', function () {
       debounce.bind(showSortedPhotos(photos, 'likes'));
     });
 
-    // Обработчик на фильтр "Обсуждаемые"
     filterDiscussed.addEventListener('click', function () {
       debounce.bind(showSortedPhotos(photos, 'comments'));
     });
 
-    // Обработчик на фильтр "Случайные"
     filterRandom.addEventListener('click', function () {
       debounce.bind(showRandomPhoto(photos));
     });

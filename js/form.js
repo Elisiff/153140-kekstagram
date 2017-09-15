@@ -45,10 +45,18 @@
     scaleImage.setAttribute('style', 'filter: none');
     formResizeControls.setAttribute('value', '100%');
     levelContainer.classList.add('hidden');
-    form.reset();
   }
 
   function onUploadFileClick() {
+    var uploadImage = form.querySelector('.upload-image');
+
+    uploadImage.addEventListener('click', function (evt) {
+      form.reset();
+    });
+  }
+  onUploadFileClick();
+
+  function onUploadFileChange() {
     var uploadFile = form.querySelector('.upload-input');
 
     uploadFile.addEventListener('change', function (evt) {
@@ -60,11 +68,11 @@
         scaleImage.src = this.result;
       };
       reader.readAsDataURL(file);
-      resetForm();
       openForm();
+      resetForm();
     });
   }
-  onUploadFileClick();
+  onUploadFileChange();
 
   var cancelBtn = form.querySelector('.upload-form-cancel');
 
@@ -97,8 +105,8 @@
       descriptionForm.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
       return false;
     } else
-    if (descriptionForm.value.length > 100) {
-      descriptionForm.setCustomValidity('Комментарий должен состоять максимум из 100 символов');
+    if (descriptionForm.value.length > 140) {
+      descriptionForm.setCustomValidity('Комментарий должен состоять максимум из 140 символов');
       descriptionForm.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
       return false;
     } else {
@@ -120,40 +128,38 @@
         hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
         return false;
       } else {
-        for (var i = 0; i < hashtags.length; i++) {
-          if (!(hashtags[i].startsWith('#'))) {
+        hashtags.forEach(function (it, i) {
+          if (!(it.startsWith('#'))) {
             hashtagsField.setCustomValidity('Хэш-тег должен начинаться с # и состоять еще из одного символа');
             hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
             return false;
           } else
-          if (hashtags[i].endsWith(',')) {
-            hashtagsField.setCustomValidity('Хэш-теги должны разделяться пробелами и не могут заканчиваться запятой');
-            hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
-            return false;
-          } else
-          if (hashtags[i].split('#').length > 2) {
+          if (it.split('#').length > 2) {
             hashtagsField.setCustomValidity('Хэш-теги должны разделяться пробелами');
             hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
             return false;
           } else
-          if (hashtags[i].length > 20) {
+          if (it.length > 20) {
             hashtagsField.setCustomValidity('Длина одного хэш-тега не должна превышать 20 символов');
             hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
             return false;
           } else
-          if (hashtags.indexOf(hashtags[i]) !== i) {
+          if (hashtags.indexOf(it) !== i) {
             hashtagsField.setCustomValidity('Хэш-теги не должны повторяться');
             hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
             return false;
+          } else {
+            hashtagsFieldValid();
+            return true;
           }
-        }
-        hashtagsFieldValid();
-        return true;
+        });
       }
     } else {
       hashtagsFieldValid();
       return true;
     }
+
+    return validateHashtags;
   }
 
   function hashtagsFieldValid() {
@@ -282,38 +288,55 @@
   }
   onEffectControlsClick();
 
-  // var submitBtn = form.querySelector('.upload-form-submit');
+  var submitBtn = form.querySelector('.upload-form-submit');
 
-  // Форма не отправляется
+  function onHashtagsChange() {
+    var formHashtags = form.querySelector('.upload-form-hashtags');
+    formHashtags.addEventListener('change', function () {
+      validateHashtags();
+    });
+  }
+  onHashtagsChange();
+
+  function onDescriptionChange() {
+    var formDescription = form.querySelector('.upload-form-description');
+    formDescription.addEventListener('change', function () {
+      validateDescription();
+    });
+  }
+  onDescriptionChange();
+
   function onSubmitBtnClick() {
-    form.addEventListener('submit', function (evt) {
-      evt.preventDefault();
-
-      if (validateHashtags() && validateDescription()) {
-        window.backend.save(new FormData(form), function () {
-          closeForm();
-          resetForm();
-        }, window.errorHandler);
-        return true;
-      } else {
-        return false;
-      }
+    submitBtn.addEventListener('click', function () {
+      validateHashtags();
+      validateDescription();
+      formSubmit();
     });
   }
   onSubmitBtnClick();
 
-  // function onSubmitBtnKeydown() {
-  //   submitBtn.addEventListener('keydown', function (evt) {
+  function onSubmitBtnKeydown() {
+    submitBtn.addEventListener('keydown', function () {
+      validateHashtags();
+      validateDescription();
+      formSubmit();
+    });
+  }
+  onSubmitBtnKeydown();
 
-  //     if ((evt.keyCode === window.ENTER_KEYCODE) && (validateHashtags() && validateDescription())) {
-  //       evt.preventDefault();
-  //       form.submit();
-  //       resetForm();
-  //       return true;
-  //     } else {
-  //       return false;
-  //     }
-  //   });
-  // }
-  // onSubmitBtnKeydown();
+  function formSubmit() {
+    if ((validateHashtags()) && (validateDescription())) {
+      form.addEventListener('submit', function (evt) {
+        evt.preventDefault();
+
+        window.backend.save(new FormData(form), function () {
+          closeForm();
+          resetForm();
+        }, window.util.errorHandler);
+      });
+      return true;
+    } else {
+      return false;
+    }
+  }
 })();

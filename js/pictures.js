@@ -1,37 +1,99 @@
 'use strict';
 
 (function () {
-  function successHandler(photos) {
-    var pictureTemplate = document.querySelector('#picture-template').content;
-    window.picturesContainer = document.querySelector('.pictures');
-    var fragment = document.createDocumentFragment();
+  var photosContainer = document.querySelector('.pictures');
+  var fragment = document.createDocumentFragment();
+  var pictureTemplate = document.querySelector('#picture-template').content;
 
-    for (var i = 0; i < photos.length; i++) {
-      var picture = pictureTemplate.cloneNode(true);
-      picture.querySelector('img').setAttribute('src', photos[i].url);
-      picture.querySelector('.picture-likes').textContent = photos[i].likes;
-      picture.querySelector('.picture-comments').textContent = photos[i].comments.length;
-      fragment.appendChild(picture);
+  function debounce(callback, photosArray) {
+    var DEBOUNCE_INTERVAL = 1000;
+    var lastTimeout;
+
+    if (lastTimeout) {
+      window.clearTimeout(lastTimeout);
+    }
+    lastTimeout = window.setTimeout(function () {
+      callback(photosArray);
+    }, DEBOUNCE_INTERVAL);
+  }
+
+  function renderPhotos(photosArray) {
+    photosContainer.innerHTML = '';
+
+    for (var i = 0; i < photosArray.length; i++) {
+      var photoElement = pictureTemplate.cloneNode(true);
+
+      photoElement.querySelector('img').setAttribute('src', photosArray[i].url);
+      photoElement.querySelector('.picture-likes').textContent = photosArray[i].likes;
+      photoElement.querySelector('.picture-comments').textContent = photosArray[i].comments.length;
+      fragment.appendChild(photoElement);
     }
 
-    window.picturesContainer.appendChild(fragment);
+    photosContainer.appendChild(fragment);
 
-    Array.prototype.forEach.call(window.picturesContainer.querySelectorAll('.picture'), function (item, index) {
-      item.dataSource = photos[index];
+    Array.prototype.forEach.call(photosContainer.querySelectorAll('.picture'), function (item, index) {
+      item.dataSource = photosArray[index];
     });
   }
 
-  window.errorHandler = function (errorMessage) {
-    var node = document.createElement('div');
-    node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
-    node.style.position = 'absolute';
-    node.style.left = 0;
-    node.style.right = 0;
-    node.style.fontSize = '30px';
+  function showSortedPhotos(photos, parameter) {
+    var sortedPhotos = photos.slice();
 
-    node.textContent = errorMessage;
-    document.body.insertAdjacentElement('afterbegin', node);
-  };
+    sortedPhotos.sort(function (left, right) {
+      switch (typeof right[parameter]) {
+        case 'object':
+          return right[parameter].length - left[parameter].length;
+        case 'number':
+          return right[parameter] - left[parameter];
+        case 'string':
+          return parseInt(right[parameter], 10) - parseInt(left[parameter], 10);
+        default:
+          throw new Error('Передан параметр ' + typeof right[parameter] + 'неверный');
+      }
+    });
 
-  window.backend.load(successHandler, window.errorHandler);
+    renderPhotos(sortedPhotos);
+  }
+
+  function showRandomPhoto(photos) {
+    var randomPhotos = [];
+
+    while (randomPhotos.length < 15) {
+      var element = photos[window.util.generateNumber(0, photos.length - 1)];
+      if (randomPhotos.indexOf(element) === -1) {
+        randomPhotos.push(element);
+      }
+    }
+
+    renderPhotos(randomPhotos);
+  }
+
+  function successHandler(photos) {
+    var filters = document.querySelector('.filters');
+    var filterRecommend = document.querySelector('#filter-recommend');
+    var filterPopular = document.querySelector('#filter-popular');
+    var filterDiscussed = document.querySelector('#filter-discussed');
+    var filterRandom = document.querySelector('#filter-random');
+    filters.classList.remove('hidden');
+
+    renderPhotos(photos);
+
+    filterRecommend.addEventListener('click', function () {
+      debounce.bind(renderPhotos(photos));
+    });
+
+    filterPopular.addEventListener('click', function () {
+      debounce.bind(showSortedPhotos(photos, 'likes'));
+    });
+
+    filterDiscussed.addEventListener('click', function () {
+      debounce.bind(showSortedPhotos(photos, 'comments'));
+    });
+
+    filterRandom.addEventListener('click', function () {
+      debounce.bind(showRandomPhoto(photos));
+    });
+  }
+
+  window.backend.load(successHandler, window.util.errorHandler);
 })();

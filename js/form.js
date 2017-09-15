@@ -290,6 +290,22 @@
 
   var submitBtn = form.querySelector('.upload-form-submit');
 
+  function onHashtagsChange() {
+    var formHashtags = form.querySelector('.upload-form-hashtags');
+    formHashtags.addEventListener('change', function () {
+      validateHashtags();
+    });
+  }
+  onHashtagsChange();
+
+  function onDescriptionChange() {
+    var formDescription = form.querySelector('.upload-form-description');
+    formDescription.addEventListener('change', function () {
+      validateDescription();
+    });
+  }
+  onDescriptionChange();
+
   function onSubmitBtnClick() {
     submitBtn.addEventListener('click', function () {
       validateHashtags();

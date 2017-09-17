@@ -13,10 +13,6 @@
       return false;
     }
 
-    if (typeof callback === 'function') {
-      callback();
-    }
-
-    return window.getPictureInGallery;
+    return (typeof callback === 'function') ? callback() : false;
   };
 })();

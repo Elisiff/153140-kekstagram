@@ -1,12 +1,12 @@
 'use strict';
 
 (function () {
+  var DEBOUNCE_INTERVAL = 1000;
   var photosContainer = document.querySelector('.pictures');
   var fragment = document.createDocumentFragment();
   var pictureTemplate = document.querySelector('#picture-template').content;
 
   function debounce(callback, photosArray) {
-    var DEBOUNCE_INTERVAL = 1000;
     var lastTimeout;
 
     if (lastTimeout) {

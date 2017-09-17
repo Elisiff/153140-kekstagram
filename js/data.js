@@ -25,17 +25,13 @@
   var data = getPhotoUrl(data);
 
   function generatePhotoArray() {
-    var photo;
-
-    var photoArray = data.map(function (index) {
-      photo = {
-        url: index,
+    return data.map(function (url) {
+      return {
+        url: url,
         likes: window.util.generateNumber(15, 200),
         comments: getRandomComment()
       };
-      return photo;
     });
-    return photoArray;
   }
 
   window.photosArray = generatePhotoArray(data);

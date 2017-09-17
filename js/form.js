@@ -26,6 +26,7 @@
   var descriptionForm = form.querySelector('.upload-form-description');
   var formResizeControls = form.querySelector('.upload-resize-controls-value');
   var input = form.querySelectorAll('input[type=radio]');
+  var hashtagsField = form.querySelector('.upload-form-hashtags');
 
   function resetForm() {
     window.classes = scaleImage.className.split(' ');
@@ -45,6 +46,9 @@
     scaleImage.setAttribute('style', 'filter: none');
     formResizeControls.setAttribute('value', '100%');
     levelContainer.classList.add('hidden');
+    hashtagsField.removeAttribute('readonly', '');
+    descriptionForm.removeAttribute('readonly', '');
+    hashtagsFieldValid();
   }
 
   function onUploadFileClick() {
@@ -116,10 +120,8 @@
     }
   }
 
-  var hashtagsField = form.querySelector('.upload-form-hashtags');
-
   function validateHashtags() {
-    var hashtagsFieldValue = ((hashtagsField.value) || ('')).trim(); // удаляем пробелы в начале и конце строки
+    var hashtagsFieldValue = (hashtagsField.value).trim(); // удаляем пробелы в начале и конце строки
     var hashtags = hashtagsFieldValue.split(/\s+/); // считаем 1 и более пробел за 1 пробел
 
     if (!(hashtagsFieldValue === '')) {
@@ -130,7 +132,7 @@
       } else {
         hashtags.forEach(function (it, i) {
           if (!(it.startsWith('#'))) {
-            hashtagsField.setCustomValidity('Хэш-тег должен начинаться с # и состоять еще из одного символа');
+            hashtagsField.setCustomValidity('Хэш-тег должен начинаться с # и состоять еще из одного символа. Пробелы служат для разделения хэш-тегов.');
             hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
             return false;
           } else
@@ -141,6 +143,11 @@
           } else
           if (it.length > 20) {
             hashtagsField.setCustomValidity('Длина одного хэш-тега не должна превышать 20 символов');
+            hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
+            return false;
+          } else
+          if ((it.length < 2) && (it.length > 0)) {
+            hashtagsField.setCustomValidity('Хэш-тег должен состоять минимум из двух символов.');
             hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
             return false;
           } else
@@ -291,16 +298,14 @@
   var submitBtn = form.querySelector('.upload-form-submit');
 
   function onHashtagsChange() {
-    var formHashtags = form.querySelector('.upload-form-hashtags');
-    formHashtags.addEventListener('change', function () {
+    hashtagsField.addEventListener('change', function () {
       validateHashtags();
     });
   }
   onHashtagsChange();
 
   function onDescriptionChange() {
-    var formDescription = form.querySelector('.upload-form-description');
-    formDescription.addEventListener('change', function () {
+    descriptionForm.addEventListener('change', function () {
       validateDescription();
     });
   }
@@ -310,24 +315,29 @@
     submitBtn.addEventListener('click', function () {
       validateHashtags();
       validateDescription();
-      formSubmit();
     });
   }
   onSubmitBtnClick();
 
   function onSubmitBtnKeydown() {
-    submitBtn.addEventListener('keydown', function () {
-      validateHashtags();
-      validateDescription();
-      formSubmit();
+    submitBtn.addEventListener('keydown', function (evt) {
+      if (evt.keyCode === window.ENTER_KEYCODE) {
+        validateHashtags();
+        validateDescription();
+      } else {
+        evt.preventDefault();
+      }
     });
   }
   onSubmitBtnKeydown();
 
   function formSubmit() {
-    if ((validateHashtags()) && (validateDescription())) {
+    if ((validateHashtags) && (validateDescription)) {
       form.addEventListener('submit', function (evt) {
         evt.preventDefault();
+        hashtagsField.value = (hashtagsField.value.trim()).split(/\s+/);
+        hashtagsField.setAttribute('readonly', '');
+        descriptionForm.setAttribute('readonly', '');
 
         window.backend.save(new FormData(form), function () {
           closeForm();
@@ -339,4 +349,5 @@
       return false;
     }
   }
+  formSubmit();
 })();

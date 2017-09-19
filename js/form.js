@@ -19,6 +19,9 @@
   function closeForm() {
     formUploadOverlay.classList.add('hidden');
     document.removeEventListener('keydown', pressEscForm);
+    if (window.node) {
+      window.node.remove();
+    }
   }
 
   var imagePreview = form.querySelector('.upload-form-preview');
@@ -46,8 +49,6 @@
     scaleImage.setAttribute('style', 'filter: none');
     formResizeControls.setAttribute('value', '100%');
     levelContainer.classList.add('hidden');
-    hashtagsField.removeAttribute('readonly', '');
-    descriptionForm.removeAttribute('readonly', '');
     hashtagsFieldValid();
   }
 
@@ -130,40 +131,38 @@
         hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
         return false;
       } else {
-        hashtags.forEach(function (it, i) {
-          if (!(it.startsWith('#'))) {
+        for (var i = 0; i < hashtags.length; i++) {
+          if (!(hashtags[i].startsWith('#'))) {
             hashtagsField.setCustomValidity('Хэш-тег должен начинаться с # и состоять еще из одного символа. Пробелы служат для разделения хэш-тегов.');
             hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
             return false;
           } else
-          if (it.split('#').length > 2) {
+          if (hashtags[i].split('#').length > 2) {
             hashtagsField.setCustomValidity('Хэш-теги должны разделяться пробелами');
             hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
             return false;
           } else
-          if (it.length > 20) {
+          if (hashtags[i].length > 20) {
             hashtagsField.setCustomValidity('Длина одного хэш-тега не должна превышать 20 символов');
             hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
             return false;
           } else
-          if ((it.length < 2) && (it.length > 0)) {
+          if ((hashtags[i].length < 2) && (hashtags[i].length > 0)) {
             hashtagsField.setCustomValidity('Хэш-тег должен состоять минимум из двух символов.');
             hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
             return false;
           } else
-          if (hashtags.indexOf(it) !== i) {
+          if (hashtags.indexOf(hashtags[i]) !== i) {
             hashtagsField.setCustomValidity('Хэш-теги не должны повторяться');
             hashtagsField.setAttribute('style', 'box-shadow: 0 0 0 1px red;');
             return false;
           } else {
             hashtagsFieldValid();
-            return true;
           }
-        });
+        }
       }
     } else {
       hashtagsFieldValid();
-      return true;
     }
 
     return validateHashtags;
@@ -298,14 +297,14 @@
   var submitBtn = form.querySelector('.upload-form-submit');
 
   function onHashtagsChange() {
-    hashtagsField.addEventListener('change', function () {
+    hashtagsField.addEventListener('blur', function () {
       validateHashtags();
     });
   }
   onHashtagsChange();
 
   function onDescriptionChange() {
-    descriptionForm.addEventListener('change', function () {
+    descriptionForm.addEventListener('blur', function () {
       validateDescription();
     });
   }
@@ -335,9 +334,8 @@
     if ((validateHashtags) && (validateDescription)) {
       form.addEventListener('submit', function (evt) {
         evt.preventDefault();
-        hashtagsField.value = (hashtagsField.value.trim()).split(/\s+/);
-        hashtagsField.setAttribute('readonly', '');
-        descriptionForm.setAttribute('readonly', '');
+        var newHashtags = (hashtagsField.value.trim()).split(/\s+/);
+        hashtagsField.value = newHashtags.join(' ');
 
         window.backend.save(new FormData(form), function () {
           closeForm();

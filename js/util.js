@@ -16,15 +16,15 @@
       }
     },
     errorHandler: function (errorMessage) {
-      var node = document.createElement('div');
-      node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
-      node.style.position = 'absolute';
-      node.style.left = 0;
-      node.style.right = '75%';
-      node.style.fontSize = '26px';
+      window.node = document.createElement('div');
+      window.node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
+      window.node.style.position = 'absolute';
+      window.node.style.left = 0;
+      window.node.style.right = '75%';
+      window.node.style.fontSize = '26px';
 
-      node.textContent = errorMessage;
-      document.body.insertAdjacentElement('afterbegin', node);
+      window.node.textContent = errorMessage;
+      document.body.insertAdjacentElement('afterbegin', window.node);
     },
     generateNumber: function (min, max) {
       var rand = min + Math.random() * (max + 1 - min);
